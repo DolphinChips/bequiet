@@ -1,0 +1,11 @@
+@import bequiet.domain.score.Score
+@(s: List[Score])
+<!DOCTYPE html>
+<html lang=en>
+	<head><title>Scores</title></head>
+	<body>
+		@for(score <- s) {
+	  		<span>id: @score.id, lamp: @score.lamp.prio</span>
+	  	}
+	</body>
+</html>

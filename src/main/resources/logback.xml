@@ -1,0 +1,13 @@
+<configuration>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<!-- pattern shamelessly stolen from scala-pet-store. thanks, paul cleary! -->
+			<pattern>[%thread] %highlight(%-5level) %cyan(%logger) - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<logger name="org.flywaydb" level="INFO" />
+	<logger name="com.zaxxer.hikari" level="INFO" />
+	<root level="ALL">
+  		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>
