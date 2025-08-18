@@ -1,0 +1,7 @@
+shell.nix
+.envrc
+.direnv
+.data
+
+**/target
+.bsp/
