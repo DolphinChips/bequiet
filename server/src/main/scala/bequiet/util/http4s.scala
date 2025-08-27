@@ -19,8 +19,9 @@ extension (s: Status)
       ee: EntityEncoder[F, A]
   ) =
     val entity = ee.toEntity(body)
-    val headers = Headers(List(`Content-Length`(entity.length.getOrElse(0))))
-    Response[F](status = s, body = entity.body, headers = headers).pure[F]
+    val headers = Headers(entity.length.map(`Content-Length`.apply).toList)
+    Response[F](status = s, body = entity.body, headers = ee.headers ++ headers)
+      .pure[F]
 
 extension [F[_]: Monad, A](
     o: OptionT[F, A]
