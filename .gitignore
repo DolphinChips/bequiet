@@ -4,4 +4,5 @@ shell.nix
 .data
 
 **/target
-.bsp/
+**/.scala-build/
+**/.bsp/
