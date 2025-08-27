@@ -1,11 +1,12 @@
 package bequiet.http.app.templates
 
-import scalatags.Text.all.*
+import scalatags.Text.all.{title => _, *}
+import scalatags.Text.tags2.title
 import bequiet.domain.song.Song
 
 def songs(s: List[Song]) = doctype("html")(
   html(lang := "en")(
-    head(title := "Songs"),
+    head()(title("Songs")),
     body(
       table(
         thead(tr(th("Song"), th())),
