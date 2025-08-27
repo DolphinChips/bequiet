@@ -26,7 +26,7 @@ class LiveSongs[F[_]: Concurrent: Logger](private val xa: Transactor[F])
   private val selectSongFragment =
     fr"""
       select
-        song_id, title, artist
+        song_id, artist, title
       from song
     """
 
