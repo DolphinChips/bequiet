@@ -9,6 +9,7 @@ import doobie.postgres.implicits.*
 import java.util.UUID
 
 trait Players[F[_]]:
+  def create(djName: String): F[PlayerId]
   def fromPlayerId(playerId: PlayerId): F[Player]
   def find(playerId: UUID): F[Option[Player]]
 
@@ -22,6 +23,13 @@ final case class LivePlayers[F[_]: Concurrent](private val xa: Transactor[F])
       where player_id = $playerId
     """
       .query[Player]
+
+  override def create(djName: String) =
+    sql"""
+      insert into player(djname) values($djName)
+    """.update
+      .withUniqueGeneratedKeys[UUID]("player_id")
+      .transact(xa)
 
   override def fromPlayerId(playerId: PlayerId) =
     findUserQuery(playerId).unique
