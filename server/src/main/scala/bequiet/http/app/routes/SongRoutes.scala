@@ -7,14 +7,15 @@ import org.http4s.*
 import org.http4s.dsl.*
 import org.http4s.scalatags.*
 import bequiet.util.http4s.*
-import bequiet.services.{Songs, Charts}
+import bequiet.services.{Songs, Charts, Ratings}
 import bequiet.domain.song.Song
+import bequiet.domain.score.Lamp
 import bequiet.http.app.templates
-import org.typelevel.log4cats.Logger
 
-final case class SongRoutes[F[_]: Concurrent: Logger](
+final case class SongRoutes[F[_]: Concurrent](
     private val songs: Songs[F],
-    private val charts: Charts[F]
+    private val charts: Charts[F],
+    private val ratings: Ratings[F]
 ) extends Http4sDsl[F]:
   private def findSong(idStr: String): OptionT[F, Song] =
     OptionT(idStr.toIntOption.flatTraverse(songs.find))
@@ -27,10 +28,18 @@ final case class SongRoutes[F[_]: Concurrent: Logger](
     case GET -> Root / "song" / idStr / "charts" =>
       findSong(idStr)
         .semiflatMap(song =>
-          Logger[F].info(song.show) *>
-            charts
-              .forSongId(song)
-              .map(templates.charts(_, song))
+          charts
+            .forSongId(song)
+            .flatMap { songCharts =>
+              songCharts.traverse(chart =>
+                ratings
+                  .forChartAndLamp(chart.id, Lamp.NormalClear)
+                  .map((chart, _))
+              )
+            }
+            .map { chartsWithRating =>
+              templates.charts(chartsWithRating, song)
+            }
         )
         .toResponse()
 

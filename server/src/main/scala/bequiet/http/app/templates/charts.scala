@@ -5,14 +5,18 @@ import scalatags.Text.tags2.title
 import bequiet.domain.chart.Chart
 import bequiet.domain.song.Song
 
-def charts(c: List[Chart], song: Song) = doctype("html")(
+def charts(c: List[(Chart, Float)], song: Song) = doctype("html")(
   html(lang := "en")(
     head()(
       title(s"Charts for ${song.title}")
     ),
     body(
-      for chart <- c
-      yield "lol no"
+      for (chart, rating) <- c
+      yield div(
+        chart.difficulty.toString,
+        rating,
+        br()
+      )
     )
   )
 )

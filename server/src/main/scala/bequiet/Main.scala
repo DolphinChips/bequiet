@@ -41,8 +41,10 @@ object Main extends IOApp:
     val livePlayers = LivePlayers[F](xa)
     val liveScores = LiveScores[F](xa)
     val liveCharts = LiveCharts[F](xa)
+    val liveRatings = LiveRatings[F](xa)
     val api = apiRoutes[F](liveSongs)
-    val app = appRoutes[F](livePlayers, liveScores, liveSongs, liveCharts)
+    val app =
+      appRoutes[F](livePlayers, liveScores, liveSongs, liveCharts, liveRatings)
     Http4sLogger
       .httpRoutes[F](logHeaders = true, logBody = false)(
         Router(
