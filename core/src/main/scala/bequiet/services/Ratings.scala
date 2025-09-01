@@ -11,7 +11,7 @@ import doobie.util.*
 
 trait Ratings[F[_]]:
   def create(chartId: ChartId, lamp: Lamp, rating: Float): F[Unit]
-  def forChartAndLamp(chartId: ChartId, lamp: Lamp): F[Float]
+  def forChartAndLamp(chartId: ChartId, lamp: Lamp): F[Option[Float]]
 
 object Ratings:
   def apply[F[_]](using ratings: Ratings[F]) = ratings
@@ -38,5 +38,5 @@ final case class LiveRatings[F[_]: Concurrent](private val xa: Transactor[F])
       where chart_id = $chartId and lamp_id = $lamp
     """
       .query[Float]
-      .unique
+      .option
       .transact(xa)
