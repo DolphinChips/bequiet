@@ -15,7 +15,6 @@ trait Charts[F[_]]:
   ): F[Int]
   def all: fs2.Stream[F, Chart]
   def forSongId(songId: SongId): F[List[Chart]]
-  def fromChartId(id: ChartId): F[Chart]
   def find(id: Int): F[Option[Chart]]
 
 object Charts:
@@ -69,10 +68,6 @@ final case class LiveCharts[F[_]: Concurrent](private val xa: Transactor[F])
     """
       .query[Chart]
       .to[List]
-      .transact(xa)
-
-  override def fromChartId(id: ChartId) =
-    findChartQuery(id).unique
       .transact(xa)
 
   override def find(id: Int) =

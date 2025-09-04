@@ -10,7 +10,6 @@ import java.util.UUID
 
 trait Players[F[_]]:
   def create(djName: String): F[PlayerId]
-  def fromPlayerId(playerId: PlayerId): F[Player]
   def find(playerId: UUID): F[Option[Player]]
 
 final case class LivePlayers[F[_]: Concurrent](private val xa: Transactor[F])
@@ -29,10 +28,6 @@ final case class LivePlayers[F[_]: Concurrent](private val xa: Transactor[F])
       insert into player(djname) values($djName)
     """.update
       .withUniqueGeneratedKeys[UUID]("player_id")
-      .transact(xa)
-
-  override def fromPlayerId(playerId: PlayerId) =
-    findUserQuery(playerId).unique
       .transact(xa)
 
   override def find(playerId: UUID) =

@@ -12,9 +12,6 @@ import org.typelevel.log4cats.Logger
 trait Songs[F[_]]:
   def create(id: SongId, artist: String, title: String): F[Unit]
   def all: fs2.Stream[F, Song]
-  def fromSongId(
-      id: SongId
-  ): F[Song]
   def find(id: Int): F[Option[Song]]
   def find(title: String): F[Option[Song]]
 
@@ -55,10 +52,6 @@ class LiveSongs[F[_]: Concurrent: Logger](private val xa: Transactor[F])
     selectSongFragment
       .query[Song]
       .stream
-      .transact(xa)
-
-  override def fromSongId(id: SongId) =
-    findSongByIdQuery(id).unique
       .transact(xa)
 
   override def find(id: Int) =
