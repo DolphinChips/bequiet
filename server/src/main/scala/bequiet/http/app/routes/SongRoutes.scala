@@ -33,7 +33,7 @@ final case class SongRoutes[F[_]: Concurrent](
             .flatMap { songCharts =>
               songCharts.traverse(chart =>
                 ratings
-                  .forChartAndLamp(chart.id, Lamp.NormalClear)
+                  .find(chart.id, Lamp.NormalClear)
                   .map((chart, _))
               )
             }

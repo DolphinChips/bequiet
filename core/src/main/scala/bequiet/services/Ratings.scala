@@ -11,7 +11,7 @@ import doobie.util.*
 
 trait Ratings[F[_]]:
   def create(chartId: ChartId, lamp: Lamp, rating: Float): F[Unit]
-  def forChartAndLamp(chartId: ChartId, lamp: Lamp): F[Option[Float]]
+  def find(chartId: ChartId, lamp: Lamp): F[Option[Float]]
 
 object Ratings:
   def apply[F[_]](using ratings: Ratings[F]) = ratings
@@ -32,7 +32,7 @@ final case class LiveRatings[F[_]: Concurrent](private val xa: Transactor[F])
       .transact(xa)
       .as(())
 
-  def forChartAndLamp(chartId: ChartId, lamp: Lamp) =
+  def find(chartId: ChartId, lamp: Lamp) =
     sql"""
       select value from rating
       where chart_id = $chartId and lamp_id = $lamp
