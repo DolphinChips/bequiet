@@ -34,12 +34,21 @@ lazy val core = (project in file("core"))
       "com.github.pureconfig" %% "pureconfig-core" % PureconfigVersion,
       "com.github.pureconfig" %% "pureconfig-cats-effect" % PureconfigVersion,
       "com.github.pureconfig" %% "pureconfig-ip4s" % PureconfigVersion,
+      "co.fs2" %% "fs2-core" % Fs2Version
+    )
+  )
+
+lazy val doobie = (project in file("doobie"))
+  .settings(
+    name := "bequiet-doobie",
+    libraryDependencies ++= Seq(
       "org.tpolecat" %% "doobie-core" % DoobieVersion,
       "org.tpolecat" %% "doobie-postgres" % DoobieVersion,
       "org.tpolecat" %% "doobie-hikari" % DoobieVersion,
-      "org.typelevel" %% "log4cats-slf4j" % Log4CatsVersion
+      "org.typelevel" %% "log4cats-core" % Log4CatsVersion
     )
   )
+  .dependsOn(core)
 
 lazy val server = (project in file("server"))
   .settings(
@@ -64,6 +73,7 @@ lazy val server = (project in file("server"))
     )
   )
   .dependsOn(core)
+  .dependsOn(doobie)
 
 lazy val cli = (project in file("cli"))
   .settings(
@@ -77,7 +87,9 @@ lazy val cli = (project in file("cli"))
       "de.lhns" %% "doobie-flyway" % DoobieFlywayVersion,
       "org.flywaydb" % "flyway-database-postgresql" % FlywayVersion,
       "ch.qos.logback" % "logback-classic" % LogbackVersion,
-      "com.kohlschutter.junixsocket" % "junixsocket-core" % JunixsocketVersion
+      "com.kohlschutter.junixsocket" % "junixsocket-core" % JunixsocketVersion,
+      "org.typelevel" %% "log4cats-slf4j" % Log4CatsVersion
     )
   )
   .dependsOn(core)
+  .dependsOn(doobie)

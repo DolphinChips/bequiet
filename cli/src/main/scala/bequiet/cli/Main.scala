@@ -1,12 +1,7 @@
-import bequiet.config.{Config, given}
-import bequiet.services.{
-  LiveSongs,
-  LiveCharts,
-  LiveRatings,
-  Songs,
-  Charts,
-  Ratings
-}
+import bequiet.config.Config
+import bequiet.doobie.given
+import bequiet.doobie.services.{LiveSongs, LiveCharts, LiveRatings}
+import bequiet.services.{Songs, Charts, Ratings}
 import bequiet.cli.subcommands.*
 import cats.effect.*
 import cats.syntax.all.*

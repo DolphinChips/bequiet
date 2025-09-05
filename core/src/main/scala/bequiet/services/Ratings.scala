@@ -1,13 +1,7 @@
 package bequiet.services
 
-import cats.effect.*
-import cats.syntax.all.*
 import bequiet.domain.score.Lamp
 import bequiet.domain.chart.ChartId
-// import bequiet.domain.rating.Rating
-import doobie.*
-import doobie.implicits.*
-import doobie.util.*
 
 trait Ratings[F[_]]:
   def create(chartId: ChartId, lamp: Lamp, rating: Float): F[Unit]
@@ -15,33 +9,3 @@ trait Ratings[F[_]]:
 
 object Ratings:
   def apply[F[_]](using ratings: Ratings[F]) = ratings
-
-final case class LiveRatings[F[_]: Concurrent](private val xa: Transactor[F])
-    extends Ratings[F]:
-  def create(chartId: ChartId, lamp: Lamp, rating: Float) =
-    ConnectionIORatings.create(chartId, lamp, rating).transact(xa)
-
-  def find(chartId: ChartId, lamp: Lamp) =
-    ConnectionIORatings.find(chartId, lamp).transact(xa)
-
-object ConnectionIORatings extends Ratings[ConnectionIO]:
-  def create(chartId: ChartId, lamp: Lamp, rating: Float) =
-    sql"""
-      insert into rating
-        ( chart_id
-        , lamp_id
-        , value )
-      values
-        ( ${chartId}
-        , ${lamp}
-        , ${rating} )
-    """.update.run
-      .as(())
-
-  def find(chartId: ChartId, lamp: Lamp) =
-    sql"""
-      select value from rating
-      where chart_id = $chartId and lamp_id = $lamp
-    """
-      .query[Float]
-      .option

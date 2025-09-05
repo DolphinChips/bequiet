@@ -1,7 +1,5 @@
 package bequiet.domain
 
-import doobie.Meta
-
 object score:
   enum Lamp(val prio: Int): // bigger == better
     case NoPlay extends Lamp(0)
@@ -26,7 +24,6 @@ object score:
         FullCombo
       )(n)
     def toInt(l: Lamp): Int = l.prio
-    given Meta[Lamp] = Meta[Int].timap(fromInt)(toInt)
 
   type ScoreId = Int
   case class Score(

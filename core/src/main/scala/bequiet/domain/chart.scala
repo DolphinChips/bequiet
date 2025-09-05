@@ -1,7 +1,5 @@
 package bequiet.domain
 
-import doobie.Meta
-
 object chart:
   enum Playstyle:
     case SP, DP
@@ -17,7 +15,6 @@ object chart:
         SP -> "SP",
         DP -> "DP"
       )(p)
-    given Meta[Playstyle] = Meta[String].timap(fromString)(toString)
 
   enum Difficulty:
     case B, N, H, A, L
@@ -39,7 +36,6 @@ object chart:
         A -> "A",
         L -> "L"
       )(p)
-    given Meta[Difficulty] = Meta[String].timap(fromString)(toString)
 
   type ChartId = Int
   case class Chart(

@@ -1,18 +1,19 @@
 package bequiet
 
-import bequiet.config.{*, given}
+import bequiet.config.Config
+import bequiet.doobie.given
+import bequiet.doobie.services.*
 import bequiet.domain.player.Player
 import bequiet.http.api.routes.apiRoutes
 import bequiet.http.app.routes.appRoutes
-import bequiet.services.*
 import cats.*
 import cats.data.*
 import cats.effect.*
 import cats.syntax.all.*
 import de.lhns.doobie.flyway.Flyway
-import doobie.*
-import doobie.hikari.HikariTransactor
-import doobie.implicits.*
+import _root_.doobie.*
+import _root_.doobie.hikari.HikariTransactor
+import _root_.doobie.implicits.*
 import fs2.io.net.Network
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.{Logger => Http4sLogger}
