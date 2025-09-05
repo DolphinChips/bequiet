@@ -20,6 +20,22 @@ object Songs:
 
 class LiveSongs[F[_]: Concurrent: Logger](private val xa: Transactor[F])
     extends Songs[F]:
+  override def create(id: SongId, artist: String, title: String) =
+    ConnectionIOSongs.create(id, artist, title).transact(xa)
+
+  override def all =
+    ConnectionIOSongs.all.transact(xa)
+
+  override def find(id: Int) =
+    ConnectionIOSongs.find(id).transact(xa)
+
+  override def find(title: String) =
+    ConnectionIOSongs.find(title).transact(xa).flatMap {
+      case x: Some[Song] => x.pure[F]
+      case None          => Logger[F].info(s"\\$title\\").as(None)
+    }
+
+object ConnectionIOSongs extends Songs[ConnectionIO]:
   private val selectSongFragment =
     fr"""
       select
@@ -45,25 +61,19 @@ class LiveSongs[F[_]: Concurrent: Logger](private val xa: Transactor[F])
         , ${title}
         , ${artist} )
     """.update.run
-      .transact(xa)
-      .map(_ => ())
+      .as(())
 
   override def all =
     selectSongFragment
       .query[Song]
       .stream
-      .transact(xa)
 
   override def find(id: Int) =
     findSongByIdQuery(id).option
-      .transact(xa)
 
   override def find(title: String) =
     val whereFragment = fr"""
       where title = $title
     """
     val statement = selectSongFragment |+| whereFragment
-    statement.query[Song].option.transact(xa).flatMap {
-      case x: Some[Song] => x.pure[F]
-      case None          => Logger[F].info(s"\\$title\\").as(None)
-    }
+    statement.query[Song].option

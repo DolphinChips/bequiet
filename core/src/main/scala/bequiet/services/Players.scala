@@ -14,6 +14,13 @@ trait Players[F[_]]:
 
 final case class LivePlayers[F[_]: Concurrent](private val xa: Transactor[F])
     extends Players[F]:
+  override def create(djName: String) =
+    ConnectionIOPlayers.create(djName).transact(xa)
+
+  override def find(playerId: UUID) =
+    ConnectionIOPlayers.find(playerId).transact(xa)
+
+object ConnectionIOPlayers extends Players[ConnectionIO]:
   def findUserQuery(playerId: UUID) =
     sql"""
       select
@@ -28,8 +35,6 @@ final case class LivePlayers[F[_]: Concurrent](private val xa: Transactor[F])
       insert into player(djname) values($djName)
     """.update
       .withUniqueGeneratedKeys[UUID]("player_id")
-      .transact(xa)
 
   override def find(playerId: UUID) =
     findUserQuery(playerId).option
-      .transact(xa)

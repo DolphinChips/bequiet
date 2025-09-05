@@ -16,6 +16,13 @@ trait Scores[F[_]]:
 final case class LiveScores[F[_]: Concurrent](private val xa: Transactor[F])
     extends Scores[F]:
   override def create(playerId: PlayerId, chartId: ChartId, lamp: Lamp) =
+    ConnectionIOScores.create(playerId, chartId, lamp).transact(xa)
+
+  override def forPlayerId(playerId: PlayerId) =
+    ConnectionIOScores.forPlayerId(playerId).transact(xa)
+
+object ConnectionIOScores extends Scores[ConnectionIO]:
+  override def create(playerId: PlayerId, chartId: ChartId, lamp: Lamp) =
     sql"""
       insert into score
         ( player_id
@@ -27,7 +34,6 @@ final case class LiveScores[F[_]: Concurrent](private val xa: Transactor[F])
         , $lamp )
     """.update
       .withUniqueGeneratedKeys[ScoreId]("score_id")
-      .transact(xa)
 
   override def forPlayerId(playerId: PlayerId) =
     sql"""
@@ -38,4 +44,3 @@ final case class LiveScores[F[_]: Concurrent](private val xa: Transactor[F])
       """
       .query[Score]
       .stream
-      .transact(xa)

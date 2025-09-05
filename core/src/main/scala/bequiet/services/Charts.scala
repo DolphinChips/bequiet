@@ -22,6 +22,23 @@ object Charts:
 
 final case class LiveCharts[F[_]: Concurrent](private val xa: Transactor[F])
     extends Charts[F]:
+  override def create(
+      songId: SongId,
+      playstyle: Playstyle,
+      difficulty: Difficulty
+  ) =
+    ConnectionIOCharts.create(songId, playstyle, difficulty).transact(xa)
+
+  override def all =
+    ConnectionIOCharts.all.transact(xa)
+
+  override def forSongId(songId: SongId) =
+    ConnectionIOCharts.forSongId(songId).transact(xa)
+
+  override def find(id: Int) =
+    ConnectionIOCharts.find(id).transact(xa)
+
+object ConnectionIOCharts extends Charts[ConnectionIO]:
   def findChartQuery(chartId: Int) =
     sql"""
       select
@@ -47,7 +64,6 @@ final case class LiveCharts[F[_]: Concurrent](private val xa: Transactor[F])
         , ${difficulty} )
     """.update
       .withUniqueGeneratedKeys[Int]("chart_id")
-      .transact(xa)
 
   override def all =
     sql"""
@@ -57,7 +73,6 @@ final case class LiveCharts[F[_]: Concurrent](private val xa: Transactor[F])
     """
       .query[Chart]
       .stream
-      .transact(xa)
 
   override def forSongId(songId: SongId) =
     sql"""
@@ -68,8 +83,6 @@ final case class LiveCharts[F[_]: Concurrent](private val xa: Transactor[F])
     """
       .query[Chart]
       .to[List]
-      .transact(xa)
 
   override def find(id: Int) =
     findChartQuery(id).option
-      .transact(xa)

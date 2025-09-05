@@ -19,6 +19,13 @@ object Ratings:
 final case class LiveRatings[F[_]: Concurrent](private val xa: Transactor[F])
     extends Ratings[F]:
   def create(chartId: ChartId, lamp: Lamp, rating: Float) =
+    ConnectionIORatings.create(chartId, lamp, rating).transact(xa)
+
+  def find(chartId: ChartId, lamp: Lamp) =
+    ConnectionIORatings.find(chartId, lamp).transact(xa)
+
+object ConnectionIORatings extends Ratings[ConnectionIO]:
+  def create(chartId: ChartId, lamp: Lamp, rating: Float) =
     sql"""
       insert into rating
         ( chart_id
@@ -29,7 +36,6 @@ final case class LiveRatings[F[_]: Concurrent](private val xa: Transactor[F])
         , ${lamp}
         , ${rating} )
     """.update.run
-      .transact(xa)
       .as(())
 
   def find(chartId: ChartId, lamp: Lamp) =
@@ -39,4 +45,3 @@ final case class LiveRatings[F[_]: Concurrent](private val xa: Transactor[F])
     """
       .query[Float]
       .option
-      .transact(xa)
